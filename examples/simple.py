@@ -1,17 +1,3 @@
-# Pisslink.py
-Minimalistic lavalink wrapper based on wavelink. Made for Pycord.
-
-# Prerequisites
-Make sure you have a running [lavalink](https://github.com/freyacodes/Lavalink) server.
-
-# Installation
-```
-pip install git+https://github.com/KaasToast/Pisslink.py
-```
-
-# Basic example
-
-```py
 import discord
 import pisslink
 import re
@@ -72,5 +58,3 @@ class Music(commands.Cog):
 client = Client()
 client.add_cog(Music(client))
 client.run('TOKEN')
-```
-For advanced usage see [advanced.py](https://github.com/KaasToast/Pisslink.py/examples/advanced.py)
