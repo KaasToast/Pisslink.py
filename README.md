@@ -73,4 +73,4 @@ client = Client()
 client.add_cog(Music(client))
 client.run('TOKEN')
 ```
-For advanced usage see [advanced.py](https://github.com/KaasToast/Pisslink.py/examples/advanced.py)
+For advanced usage see [advanced.py](https://github.com/KaasToast/Pisslink.py/blob/main/examples/advanced.py)
