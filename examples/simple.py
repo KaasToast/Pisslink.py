@@ -1,7 +1,9 @@
+import asyncio
 import discord
 import pisslink
 import re
 
+from discord import Option
 from discord.commands import slash_command
 from discord.ext import commands
 
@@ -9,16 +11,16 @@ YOUTUBE_REGEX = re.compile(r'^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|
 
 class Client(discord.Bot):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 class Music(commands.Cog):
 
-    def __init__(self, client):
+    def __init__(self, client: discord.Bot) -> None:
         self.client = client
         self.client.loop.create_task(self.node())
 
-    async def node(self):
+    async def node(self) -> None:
         await self.client.wait_until_ready()
         await pisslink.NodePool.create_node(
             client = self.client,
@@ -28,7 +30,7 @@ class Music(commands.Cog):
         )
 
     @slash_command()
-    async def play(self, ctx, query):
+    async def play(self, ctx: discord.ApplicationContext, query: Option(str, 'The URL or search query for what you want to play.')) -> None:
         '''Play a song from youtube.'''
         player = ctx.voice_client
         await ctx.defer()
@@ -36,11 +38,11 @@ class Music(commands.Cog):
             if not ctx.author.voice:
                 return await ctx.respond('You are not connected to a voice channel.')
             else:
-                try:
-                    channel = ctx.author.voice.channel
-                    await channel.connect(cls=pisslink.Player())
-                    player = ctx.voice_client
-                except discord.Forbidden:
+                channel = ctx.author.voice.channel
+                await channel.connect(cls=pisslink.Player())
+                player = ctx.voice_client
+                await asyncio.sleep(1)
+                if ctx.guild.me not in channel.members:
                     return await ctx.respond('I do not have access to this channel.')
         if not ctx.author.voice or player.channel != ctx.author.voice.channel: # check if author is in same channel as the bot
             await ctx.respond('You must be in the same channel as the bot.')

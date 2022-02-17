@@ -20,7 +20,7 @@ SPOTIFY_CLIENT_SECRET = 'SPOTIFY_CLIENT_SECRET'
 
 class Client(discord.Bot):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 class UserNotConnected(discord.ApplicationCommandError):
@@ -58,7 +58,7 @@ class InvalidURL(discord.ApplicationCommandError):
 
 class Queue:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._queue = []
 
     @property
@@ -93,7 +93,7 @@ class Queue:
 
 class Player(pisslink.Player):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.queue = Queue()
         self.skip_votes = set()
@@ -101,17 +101,18 @@ class Player(pisslink.Player):
         self.current_track = None
         self.dj = None
 
-    async def teardown(self):
+    async def teardown(self) -> None:
         self.queue.clear()
         await self.stop()
         await self.disconnect(force=False)
 
-    async def add_track(self, track):
+    async def add_track(self, track: pisslink.Track) -> None:
         self.queue.add(track)
         if not self.is_playing() and not self.queue.is_empty():
             await self.advance()
 
-    async def advance(self):
+    async def advance(self) -> None:
+        await self.move_to(self.channel)
         if self.loop:
             await self.play(self.current_track)
         elif (track := self.queue.get_track()):
@@ -130,21 +131,21 @@ class Player(pisslink.Player):
 
 class Music(commands.Cog):
 
-    def __init__(self, client):
+    def __init__(self, client: discord.Bot) -> None:
         self.client = client
         self.spotify = spotipy.Spotify(client_credentials_manager=spotipy.SpotifyClientCredentials(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
         self.client.loop.create_task(self.node())
 
-    def cog_unload(self):
+    def cog_unload(self) -> None:
         self.client.loop.create_task(self.disconnect_all())
 
-    async def disconnect_all(self):
+    async def disconnect_all(self) -> None:
         for guild in self.client.guilds:
             player = guild.voice_client
             if player and player.is_connected():
                 await player.teardown()
 
-    async def node(self):
+    async def node(self) -> None:
         await self.client.wait_until_ready()
         await pisslink.NodePool.create_node(
             client = self.client,
@@ -153,7 +154,7 @@ class Music(commands.Cog):
             password = 'youshallnotpass'
         )
 
-    async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx: discord.ApplicationContext, error: discord.ApplicationCommandError) -> None:
         if isinstance(error, UserNotConnected):
             await ctx.respond('You are not connected to a voice channel.', ephemeral=True)
         if isinstance(error, NoAccess):
@@ -177,7 +178,7 @@ class Music(commands.Cog):
         if isinstance(error, InvalidURL):
             await ctx.respond('Only spotify and youtube URLs are supported.', ephemeral=True)
 
-    def required(self, ctx):
+    def required(self, ctx: discord.ApplicationContext) -> int:
         player = ctx.voice_client
         count = 0
         for member in player.channel.members:
@@ -185,7 +186,7 @@ class Music(commands.Cog):
                 count += 1
         return math.ceil(count / 2.5)
 
-    def length(self, ctx):
+    def length(self, ctx: discord.ApplicationContext) -> int:
         player = ctx.voice_client
         count = 0
         for member in player.channel.members:
@@ -193,22 +194,23 @@ class Music(commands.Cog):
                 count += 1
         return count
 
-    def is_privileged(self, ctx):
+    def is_privileged(self, ctx: discord.ApplicationContext) -> bool:
         player = ctx.voice_client
         return player.dj == ctx.author or ctx.author.guild_permissions.manage_channels
 
     @commands.Cog.listener()
-    async def on_pisslink_track_end(self, player, track, reason):
+    async def on_pisslink_track_end(self, player: pisslink.Player, track: pisslink.Track, reason: str) -> None:
         await player.advance()
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
-        player = self.get_player(member.guild)
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
+        player = member.guild.voice_client
         if member.id == self.client.user.id:
             if before.channel and not after.channel:
                 if player and player.is_connected():
                     await player.teardown()
             elif before.channel and after.channel and before.channel != after.channel:
+                await player.move_to(after.channel)
                 if not player.dj or not player.dj in after.channel.members:
                     count = 0
                     for m in after.channel.members:
@@ -247,7 +249,7 @@ class Music(commands.Cog):
                 player.dj = member
 
     @slash_command()
-    async def join(self, ctx):
+    async def join(self, ctx: discord.ApplicationContext) -> None:
         '''Make the bot join your voice channel.'''
         player = ctx.voice_client
         if player and player.is_connected():
@@ -255,14 +257,15 @@ class Music(commands.Cog):
         elif not ctx.author.voice:
             raise UserNotConnected
         else:
-            try:
-                channel = ctx.author.voice.channel
-                await channel.connect(cls=Player())
-                player = ctx.voice_client
-                player.dj = ctx.author
-                await ctx.respond(f'Joined {channel.name}.')
-            except discord.Forbidden:
+            channel = ctx.author.voice.channel
+            await channel.connect(cls=Player())
+            player = ctx.voice_client
+            player.dj = ctx.author
+            await asyncio.sleep(1)
+            if ctx.guild.me not in channel.members:
+                await player.teardown()
                 raise NoAccess
+            await ctx.respond(f'Joined {channel.name}.')
 
     @slash_command()
     async def leave(self, ctx):
@@ -288,12 +291,14 @@ class Music(commands.Cog):
             if not ctx.author.voice:
                 raise UserNotConnected
             else:
-                try:
-                    channel = ctx.author.voice.channel
-                    await channel.connect(cls=Player())
-                    player = ctx.voice_client
-                    player.dj = ctx.author
-                except discord.Forbidden:
+                channel = ctx.author.voice.channel
+                await channel.connect(cls=Player())
+                player = ctx.voice_client
+                player.dj = ctx.author
+                await asyncio.sleep(1)
+                if ctx.guild.me not in channel.members:
+                    await player.teardown()
+                    await ctx.delete()
                     raise NoAccess
         if not ctx.author.voice or player.channel != ctx.author.voice.channel:
             raise NotSameChannel
@@ -357,7 +362,8 @@ class Music(commands.Cog):
                             else:
                                 for track in tracks:
                                     await player.add_track(track)
-                                await ctx.respond(f'Added {len(tracks)} songs to the queue.')
+                                title = self.spotify.playlist(playlist_id=query, fields='name')['name']
+                                await ctx.respond(f'Added {len(tracks)} songs from {title} to the queue.')
                         except:
                             raise NoTracksFound
                 elif search_type == 'album':
@@ -396,19 +402,20 @@ class Music(commands.Cog):
                             else:
                                 for track in tracks:
                                     await player.add_track(track)
-                                await ctx.respond(f'Added {len(tracks)} songs to the queue.')
+                                title = self.spotify.album(album_id=query)['name']
+                                await ctx.respond(f'Added {len(tracks)} songs from {title} to the queue.')
                         except:
                             raise NoTracksFound
                 else:
                     raise NoTracksFound
             elif PLAYLIST_REGEX.match(query):
-                track = await pisslink.PisslinkTrack.get_playlist(query)
-                if not track:
+                tracks = await pisslink.PisslinkTrack.get_playlist(query)
+                if not tracks:
                     raise NoTracksFound
                 else:
-                    for track in track.tracks:
+                    for track in tracks.tracks:
                         await player.add_track(track)
-                    await ctx.respond(f'Added {len(track.tracks)} songs to the queue.')
+                    await ctx.respond(f'Added {len(tracks.tracks)} songs from {tracks.name} to the queue.')
             elif YOUTUBE_REGEX.match(query):
                 track = await pisslink.PisslinkTrack.get(query, return_first=True)
                 if not track:
