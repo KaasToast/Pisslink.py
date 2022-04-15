@@ -55,7 +55,7 @@ class PisslinkTrack(Track, Searchable):
         return tracks[0]
 
     @classmethod
-    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> List[ST]:
+    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> PisslinkPlaylist:
         '''Gets playlist with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
