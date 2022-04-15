@@ -12,7 +12,7 @@ __all__ = (
 
 class Penalty:
 
-    def __init__(self, stats: Stats):
+    def __init__(self, stats: Stats) -> None:
         self.player_penalty: int = stats.playing_players
         self.cpu_penalty: float = 1.05 ** (100 * stats.system_load) * 10 - 10
         self.null_frame_penalty: float = 0
@@ -35,7 +35,7 @@ class Penalty:
 
 class Stats:
 
-    def __init__(self, node: Node, data: dict[str, Any]):
+    def __init__(self, node: Node, data: dict[str, Any]) -> None:
         self._node: Node = node
         self.uptime: int = data['uptime']
         self.players: int = data['players']

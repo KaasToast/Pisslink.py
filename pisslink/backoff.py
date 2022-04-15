@@ -4,7 +4,7 @@ from typing import Optional
 
 class Backoff:
     
-    def __init__(self, *, base: int = 1, maximum_time: float = 30.0, maximum_tries: Optional[int] = 5):
+    def __init__(self, *, base: int = 1, maximum_time: float = 30.0, maximum_tries: Optional[int] = 5) -> None:
         self._base = base
         self._maximum_time = maximum_time
         self._maximum_tries = maximum_tries

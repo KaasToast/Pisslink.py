@@ -16,7 +16,7 @@ __all__ = (
 
 class Websocket:
 
-    def __init__(self, *, node: Node, session: aiohttp.ClientSession = MISSING):
+    def __init__(self, *, node: Node, session: aiohttp.ClientSession = MISSING) -> None:
         self.node: Node = node
         self.websocket: Optional[aiohttp.ClientWebSocketResponse] = None
         if session is MISSING:

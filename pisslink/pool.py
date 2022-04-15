@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import aiohttp
 import discord
@@ -28,7 +27,7 @@ PLT = TypeVar('PLT', bound=abc.Playlist)
 
 class Node:
 
-    def __init__(self, client: discord.Bot, host: str, port: int, password: str, https: bool, heartbeat: float, region: Optional[discord.VoiceRegion], identifier: str, dumps: Callable[[Any], str]):
+    def __init__(self, client: discord.Bot, host: str, port: int, password: str, https: bool, heartbeat: float, region: Optional[discord.VoiceRegion], identifier: str, dumps: Callable[[Any], str]) -> None:
         self.client: discord.Bot = client
         self._host: str = host
         self._port: int = port

@@ -17,12 +17,12 @@ VoiceChannel = Union[
 
 class Player(discord.VoiceProtocol):
 
-    def __call__(self, client: discord.Client, channel: VoiceChannel):
+    def __call__(self, client: discord.Client, channel: VoiceChannel) -> None:
         self.client: discord.Client = client
         self.channel: VoiceChannel = channel
         return self
 
-    def __init__(self, client: discord.Client = MISSING, channel: VoiceChannel = MISSING, *, node: Node = MISSING):
+    def __init__(self, client: discord.Client = MISSING, channel: VoiceChannel = MISSING, *, node: Node = MISSING) -> None:
         self.client: discord.Client = client
         self.channel: VoiceChannel = channel
         if node is MISSING:

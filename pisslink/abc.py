@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import abc
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Type, TypeVar, Union, overload
-from .utils import MISSING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar, overload
 
 if TYPE_CHECKING:
     from .pool import Node
@@ -29,12 +28,17 @@ class Searchable(metaclass=abc.ABCMeta):
     @overload
     @classmethod
     @abc.abstractmethod
-    async def search(cls: Type[ST], query: str, *, node: Node = ..., return_first: Literal[True] = ...) -> Optional[ST]: ...
+    async def search(cls: Type[ST], query: str, *, node: Node = ...) -> Optional[ST]: ...
 
     @overload
     @classmethod
     @abc.abstractmethod
-    async def search(cls: Type[ST], query: str, *, node: Node = ..., return_first: Literal[False] = ...) -> List[ST]: ...
+    async def get(cls: Type[ST], query: str, *, node: Node = ...) -> Optional[ST]: ...
+
+    @overload
+    @classmethod
+    @abc.abstractmethod
+    async def get_playlist(cls: Type[ST], query: str, *, node: Node = ...) -> List[ST]: ...
 
 class Playlist(metaclass=abc.ABCMeta):
 

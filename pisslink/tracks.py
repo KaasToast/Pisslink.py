@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, List, Literal, Optional, Type, TypeVar, Union, overload
+from typing import List, Optional, Type, TypeVar
 
 from .abc import *
 from .pool import Node, NodePool
@@ -16,7 +16,7 @@ ST = TypeVar('ST', bound='PisslinkTrack')
 
 class Track(Playable):
 
-    def __init__(self, id: str, info: dict):
+    def __init__(self, id: str, info: dict) -> None:
         super().__init__(id, info)
         self.title: str = info['title']
         self.identifier: Optional[str] = info.get('identifier')
@@ -39,27 +39,23 @@ class Track(Playable):
 class PisslinkTrack(Track, Searchable):
 
     @classmethod
-    async def search(cls: Type[ST], query: str, *, node: Node = MISSING, return_first: bool = False) -> Union[Optional[ST], List[ST]]:
+    async def search(cls: Type[ST], query: str, *, node: Node = MISSING) -> Optional[ST]:
         '''Search for tracks with the given query.'''
         if node is MISSING:
             node = NodePool.get_node()
         tracks = await node.get_tracks(cls, f'ytsearch:{query}')
-        if return_first:
-            return tracks[0]
-        return tracks
+        return tracks[0]
 
     @classmethod
-    async def get(cls: Type[ST], query: str, *, node: Node = MISSING, return_first: bool = False) -> Union[Optional[ST], List[ST]]:
+    async def get(cls: Type[ST], query: str, *, node: Node = MISSING) -> Optional[ST]:
         '''Gets tracks with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
         tracks = await node.get_tracks(cls, query)
-        if return_first:
-            return tracks[0]
-        return tracks
+        return tracks[0]
 
     @classmethod
-    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> Union[Optional[ST], List[ST]]:
+    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> List[ST]:
         '''Gets playlist with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
@@ -68,7 +64,7 @@ class PisslinkTrack(Track, Searchable):
 
 class PisslinkPlaylist(Playlist):
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict) -> None:
         self.tracks: List[PisslinkTrack] = []
         self.name: str = data['playlistInfo']['name']
         self.selected_track: Optional[int] = data['playlistInfo'].get('selectedTrack')
