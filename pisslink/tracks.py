@@ -13,6 +13,7 @@ __all__ = (
 )
 
 ST = TypeVar('ST', bound='PisslinkTrack')
+PT = TypeVar('PT', bound='PisslinkPlaylist')
 
 class Track(Playable):
 
@@ -55,7 +56,7 @@ class PisslinkTrack(Track, Searchable):
         return tracks[0]
 
     @classmethod
-    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> PisslinkPlaylist:
+    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> Optional[PT]:
         '''Gets playlist with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
