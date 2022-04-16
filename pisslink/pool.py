@@ -5,7 +5,7 @@ import os
 import aiohttp
 import discord
 
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar
 from discord.enums import try_enum
 from . import abc
 from .enums import *
@@ -85,7 +85,7 @@ class Node:
             data = await resp.json()
         return data, resp
 
-    async def get_tracks(self, cls: Type[PT], query: str, requester: Union[discord.Member, discord.User]) -> Optional[PT]:
+    async def get_tracks(self, cls: Type[PT], query: str) -> List[PT]:
         data, resp = await self._get_data('loadtracks', {'identifier': query})
         if resp.status != 200:
             raise LavalinkException('Invalid response from Lavalink server.')
@@ -99,9 +99,9 @@ class Node:
             return [cls(track_data['track'], track_data['info'])]
         if load_type is not LoadType.search_result:
             raise LavalinkException('Track failed to load.')
-        return [cls(track_data['track'], track_data["info"], requester) for track_data in data['tracks']]
+        return [cls(track_data['track'], track_data["info"]) for track_data in data['tracks']]
 
-    async def get_playlist(self, cls: Type[PLT], identifier: str, requester: Union[discord.Member, discord.User]) -> Optional[PLT]:
+    async def get_playlist(self, cls: Type[PLT], identifier: str) -> Optional[PLT]:
         data, resp = await self._get_data('loadtracks', {'identifier': identifier})
         if resp.status != 200:
             raise LavalinkException('Invalid response from Lavalink server.')
@@ -112,7 +112,7 @@ class Node:
             return None
         if load_type is not LoadType.playlist_loaded:
             raise LavalinkException('Track failed to load.')
-        return cls(data, requester)
+        return cls(data)
 
     async def build_track(self, cls: Type[PT], identifier: str) -> PT:
         data, resp = await self._get_data('decodetrack', {'track': identifier})
