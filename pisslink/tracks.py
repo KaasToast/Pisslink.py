@@ -51,19 +51,19 @@ class PisslinkTrack(Track, Searchable):
         return tracks[0]
 
     @classmethod
-    async def get(cls: Type[ST], query: str, *, node: Node = MISSING) -> Optional[ST]:
+    async def get(cls: Type[ST], query: str, requester: Union[discord.Member, discord.User], *, node: Node = MISSING) -> Optional[ST]:
         '''Gets tracks with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
-        tracks = await node.get_tracks(cls, query)
+        tracks = await node.get_tracks(cls, query, requester)
         return tracks[0]
 
     @classmethod
-    async def get_playlist(cls: Type[ST], query: str, *, node: Node = MISSING) -> Optional[PT]:
+    async def get_playlist(cls: Type[ST], query: str, requester: Union[discord.Member, discord.User], *, node: Node = MISSING) -> Optional[PT]:
         '''Gets playlist with the given url.'''
         if node is MISSING:
             node = NodePool.get_node()
-        tracks = await node.get_playlist(PisslinkPlaylist, query)
+        tracks = await node.get_playlist(PisslinkPlaylist, query, requester)
         return tracks
 
 class PisslinkPlaylist(Playlist):
