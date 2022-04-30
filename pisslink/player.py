@@ -62,7 +62,6 @@ class Player(discord.VoiceProtocol):
             await self.disconnect()
             return
         self.channel = self.guild.get_channel(int(channel_id))
-        await self._dispatch_voice_update()
 
     async def _dispatch_voice_update(self) -> None:
         if {'sessionId', 'event'} == self._voice_state.keys():
