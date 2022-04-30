@@ -50,6 +50,10 @@ class Player(discord.VoiceProtocol):
         self.last_update = datetime.datetime.fromtimestamp(state.get('time', 0) / 1000, datetime.timezone.utc)
         self.last_position = round(state.get('position', 0) / 1000, 1)
 
+    async def on_voice_server_update(self, data: Dict[str, Any]) -> None:
+        self._voice_state.update({'event': data})
+        await self._dispatch_voice_update()
+
     async def on_voice_state_update(self, data: Dict[str, Any]) -> None:
         self._voice_state.update({'sessionId': data['session_id']})
         channel_id = data['channel_id']
@@ -58,7 +62,6 @@ class Player(discord.VoiceProtocol):
             await self.disconnect()
             return
         self.channel = self.guild.get_channel(int(channel_id))
-        await self._dispatch_voice_update()
 
     async def _dispatch_voice_update(self) -> None:
         if {'sessionId', 'event'} == self._voice_state.keys():
