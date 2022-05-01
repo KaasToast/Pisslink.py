@@ -1,47 +1,48 @@
-from discord.enums import try_enum
 from .enums import ErrorSeverity
 
 __all__ = (
-    'PisslinkError',
-    'AuthorizationFailure',
-    'LavalinkException',
-    'LoadTrackError',
-    'BuildTrackError',
-    'NodeOccupied',
-    'InvalidIDProvided',
-    'ZeroConnectedNodes',
-    'NoMatchingNode',
+    "PisslinkError",
+    "AuthorizationFailure",
+    "LavalinkException",
+    "LoadTrackError",
+    "BuildTrackError",
+    "NodeOccupied",
+    "InvalidIDProvided",
+    "ZeroConnectedNodes",
+    "NoMatchingNode",
 )
 
 class PisslinkError(Exception):
-    pass
+    """Base WaveLink Exception"""
 
 class AuthorizationFailure(PisslinkError):
-    pass
+    """Exception raised when an invalid password is provided toa node."""
 
 class LavalinkException(PisslinkError):
-    pass
+    """Exception raised when an error occurs talking to Lavalink."""
 
 class LoadTrackError(LavalinkException):
+    """Exception raised when an error occurred when loading a track."""
 
     def __init__(self, data):
-        exception = data['exception']
-        self.severity: ErrorSeverity = try_enum(ErrorSeverity, exception['severity'])
-        super().__init__(exception['message'])
+        exception = data["exception"]
+        self.severity: ErrorSeverity
+        super().__init__(exception["message"])
 
 class BuildTrackError(LavalinkException):
+    """Exception raised when a track is failed to be decoded and re-built."""
 
     def __init__(self, data):
-        super().__init__(data['error'])
+        super().__init__(data["error"])
 
 class NodeOccupied(PisslinkError):
-    pass
+    """Exception raised when node identifiers conflict."""
 
 class InvalidIDProvided(PisslinkError):
-    pass
+    """Exception raised when an invalid ID is passed somewhere in Wavelink."""
 
 class ZeroConnectedNodes(PisslinkError):
-    pass
+    """Exception raised when an operation is attempted with nodes, when there are None connected."""
 
 class NoMatchingNode(PisslinkError):
-    pass
+    """Exception raised when a Node is attempted to be retrieved with a incorrect identifier."""

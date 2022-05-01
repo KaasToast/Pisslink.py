@@ -7,10 +7,10 @@ setup(
     name='pisslink',
     author='KaasToast',
     url='https://github.com/KaasToast/Pisslink.py',
-    version='V1',
+    version='1.1',
     packages=['pisslink'],
     license='MIT',
-    description='Minimalistic lavalink wrapper based on wavelink. Made for Pycord.',
+    description='Wavelink fork that works.',
     include_package_data=True,
     install_requires=requirements
 )

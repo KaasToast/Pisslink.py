@@ -1,5 +1,5 @@
 # Pisslink.py
-Minimalistic lavalink wrapper based on wavelink. Made for Pycord.
+Wavelink fork that works.
 
 # Prerequisites
 Make sure you have a running [lavalink](https://github.com/freyacodes/Lavalink) server.
