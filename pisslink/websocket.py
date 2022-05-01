@@ -6,7 +6,7 @@ from typing import Any, Dict, TYPE_CHECKING, Tuple, Optional
 
 import aiohttp
 
-from .. import pisslink
+import pisslink
 from .utils import MISSING
 
 if TYPE_CHECKING:
