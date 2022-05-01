@@ -114,7 +114,7 @@ class Player(discord.VoiceProtocol):
     async def on_voice_server_update(self, data: Dict[str, Any]) -> None:
         self._voice_state.update({"event": data})
 
-        await self._dispatch_voice_update(self._voice_state)
+        await self._dispatch_voice_update()
 
     async def on_voice_state_update(self, data: Dict[str, Any]) -> None:
         self._voice_state.update({"sessionId": data["session_id"]})
@@ -125,14 +125,14 @@ class Player(discord.VoiceProtocol):
             return
 
         self.channel = self.guild.get_channel(int(channel_id))  # type: ignore
-        await self._dispatch_voice_update({**self._voice_state})
+        await self._dispatch_voice_update()
 
-    async def _dispatch_voice_update(self, voice_state: Dict[str, Any]) -> None:
+    async def _dispatch_voice_update(self) -> None:
         logger.debug(f"Dispatching voice update:: {self.channel.id}")
 
         if {"sessionId", "event"} == self._voice_state.keys():
             await self.node._websocket.send(
-                op="voiceUpdate", guildId=str(self.guild.id), **voice_state
+                op="voiceUpdate", guildId=str(self.guild.id), **self._voice_state
             )
 
     async def connect(self, *, timeout: float, reconnect: bool, **kwargs: Any) -> None:
