@@ -112,13 +112,12 @@ class Player(pisslink.Player):
             await self.advance()
 
     async def advance(self) -> None:
-        await self.move_to(self.channel)
         if self.loop:
             await self.play(self.current_track)
         elif (track := self.queue.get_track()):
             self.skip_votes.clear()
             if track.id == 'spotify':
-                track = await pisslink.PisslinkTrack.search(track.title, return_first=True)
+                track = await pisslink.YouTubeTrack.search(track.title, return_first=True)
                 if not track:
                     return await self.advance()
             await self.play(track)
@@ -148,7 +147,7 @@ class Music(commands.Cog):
     async def node(self) -> None:
         await self.client.wait_until_ready()
         await pisslink.NodePool.create_node(
-            client = self.client,
+            bot = self.client,
             host = '127.0.0.1',
             port = 2333,
             password = 'youshallnotpass'
@@ -206,11 +205,7 @@ class Music(commands.Cog):
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
         player = member.guild.voice_client
         if member.id == self.client.user.id:
-            if before.channel and not after.channel:
-                if player and player.is_connected():
-                    await player.teardown()
-            elif before.channel and after.channel and before.channel != after.channel:
-                await player.move_to(after.channel)
+            if before.channel and after.channel and before.channel != after.channel:
                 if not player.dj or not player.dj in after.channel.members:
                     count = 0
                     for m in after.channel.members:
@@ -317,7 +312,7 @@ class Music(commands.Cog):
                                 artists.append(artist['name'])
                             artists = ' & '.join(artists)
                             name = f'{artists} - {result["name"]}'
-                            track = await pisslink.PisslinkTrack.search(name, return_first=True)
+                            track = await pisslink.YouTubeTrack.search(name, return_first=True)
                             if player.queue.is_empty() and not player.is_playing() and not player.is_paused():
                                 await player.add_track(track)
                                 await ctx.respond(f'Playing "{track.title}" now.')
@@ -409,7 +404,7 @@ class Music(commands.Cog):
                 else:
                     raise NoTracksFound
             elif PLAYLIST_REGEX.match(query):
-                tracks = await pisslink.PisslinkTrack.get_playlist(query)
+                tracks = await pisslink.YouTubePlaylist.search(query)
                 if not tracks:
                     raise NoTracksFound
                 else:
@@ -417,7 +412,7 @@ class Music(commands.Cog):
                         await player.add_track(track)
                     await ctx.respond(f'Added {len(tracks.tracks)} songs from {tracks.name} to the queue.')
             elif YOUTUBE_REGEX.match(query):
-                track = await pisslink.PisslinkTrack.get(query, return_first=True)
+                track = await pisslink.YouTubeTrack.search(query, return_first=True)
                 if not track:
                     raise NoTracksFound
                 if player.queue.is_empty() and not player.is_playing() and not player.is_paused():
@@ -429,7 +424,7 @@ class Music(commands.Cog):
             elif URL_REGEX.match(query):
                 raise InvalidURL
             else:
-                track = await pisslink.PisslinkTrack.search(query, return_first=True)
+                track = await pisslink.YouTubeTrack.search(query, return_first=True)
                 if not track:
                     raise NoTracksFound
                 if player.queue.is_empty() and not player.is_playing() and not player.is_paused():

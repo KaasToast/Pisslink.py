@@ -23,7 +23,7 @@ class Music(commands.Cog):
     async def node(self) -> None:
         await self.client.wait_until_ready()
         await pisslink.NodePool.create_node(
-            client = self.client,
+            bot = self.client,
             host = '127.0.0.1',
             port = 2333,
             password = 'youshallnotpass'
@@ -48,9 +48,9 @@ class Music(commands.Cog):
             await ctx.respond('You must be in the same channel as the bot.')
         else:
             if YOUTUBE_REGEX.match(query): # check if query is url.
-                track = await pisslink.PisslinkTrack.get(query, return_first=True)
+                track = await pisslink.YouTubeTrack.search(query, return_first=True)
             else: # query is not a url
-                track = await pisslink.PisslinkTrack.search(query, return_first=True)
+                track = await pisslink.YouTubeTrack.search(query, return_first=True)
             if not track: # check if track was found
                 await ctx.respond('Song not found.')
             else: # play the track

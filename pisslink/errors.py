@@ -13,7 +13,7 @@ __all__ = (
 )
 
 class PisslinkError(Exception):
-    """Base WaveLink Exception"""
+    """Base Pisslink Exception"""
 
 class AuthorizationFailure(PisslinkError):
     """Exception raised when an invalid password is provided toa node."""
@@ -39,7 +39,7 @@ class NodeOccupied(PisslinkError):
     """Exception raised when node identifiers conflict."""
 
 class InvalidIDProvided(PisslinkError):
-    """Exception raised when an invalid ID is passed somewhere in Wavelink."""
+    """Exception raised when an invalid ID is passed somewhere in Pisslink."""
 
 class ZeroConnectedNodes(PisslinkError):
     """Exception raised when an operation is attempted with nodes, when there are None connected."""

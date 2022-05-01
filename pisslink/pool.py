@@ -41,7 +41,7 @@ PLT = TypeVar("PLT", bound=abc.Playlist)
 logger: logging.Logger = logging.getLogger(__name__)
 
 class Node:
-    """WaveLink Node object.
+    """Pisslink Node object.
 
     Attributes
     ----------
@@ -85,7 +85,7 @@ class Node:
         self.resume_key = resume_key or str(os.urandom(8).hex())
 
     def __repr__(self) -> str:
-        return f"<WaveLink Node: <{self.identifier}>, Region: <{self.region}>, Players: <{len(self._players)}>>"
+        return f"<Pisslink Node: <{self.identifier}>, Region: <{self.region}>, Players: <{len(self._players)}>>"
 
     @property
     def host(self) -> str:
@@ -158,7 +158,7 @@ class Node:
         Returns
         -------
         List[:class:`abc.Playable`]:
-            A list of wavelink track objects.
+            A list of pisslink track objects.
 
         Raises
         ------
@@ -207,7 +207,7 @@ class Node:
         Returns
         -------
         Optional[:class:`abc.Playlist`]:
-            The related wavelink track object or ``None`` if none was found.
+            The related pisslink track object or ``None`` if none was found.
 
         Raises
         ------
@@ -305,7 +305,7 @@ class Node:
         del NodePool._nodes[self._identifier]
 
 class NodePool:
-    """Wavelink NodePool class.
+    """Pisslink NodePool class.
 
     This class holds all the Node objects created with :meth:`create_node()`.
     """
@@ -335,7 +335,7 @@ class NodePool:
 
         """|coro|
 
-        Classmethod that creates a :class:`Node` object and stores it for use with WaveLink.
+        Classmethod that creates a :class:`Node` object and stores it for use with Pisslink.
 
         Parameters
         ----------
@@ -353,15 +353,13 @@ class NodePool:
             The heartbeat in seconds for the node. Defaults to 30 seconds.
         region: Optional[:class:`discord.VoiceRegion`]
             The discord.py VoiceRegion to assign to the node. This is useful for node region balancing.
-        spotify_client: Optional[:class:`wavelink.ext.spotify.SpotifyClient`]
-            An optional SpotifyClient with credentials to use when searching for spotify tracks.
         identifier: :class:`str`
             The unique identifier for this Node. By default this will be generated for you.
 
         Returns
         -------
         :class:`Node`
-            The WaveLink Node object.
+            The Pisslink Node object.
         """
 
         if identifier is MISSING:
@@ -406,7 +404,7 @@ class NodePool:
         Returns
         --------
         :class:`Node`
-            The WaveLink Node object.
+            The Pisslink Node object.
 
         Raises
         --------

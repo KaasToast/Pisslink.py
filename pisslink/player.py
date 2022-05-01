@@ -20,7 +20,7 @@ VoiceChannel = Union[
 ]  # todo: VocalGuildChannel?
 
 class Player(discord.VoiceProtocol):
-    """WaveLink Player object.
+    """Pisslink Player object.
 
     This class subclasses :class:`discord.VoiceProtocol` and such should be treated as one with additions.
 
@@ -32,7 +32,7 @@ class Player(discord.VoiceProtocol):
             @commands.command()
             async def connect(self, channel: discord.VoiceChannel):
 
-                voice_client = await channel.connect(cls=wavelink.Player)
+                voice_client = await channel.connect(cls=pisslink.Player)
 
 
     .. warning::
@@ -174,7 +174,7 @@ class Player(discord.VoiceProtocol):
     ):
         """|coro|
 
-        Play a WaveLink Track.
+        Play a Pisslink Track.
 
         Parameters
         ----------
@@ -190,7 +190,7 @@ class Player(discord.VoiceProtocol):
 
         Returns
         -------
-        :class:`wavelink.abc.Playable`
+        :class:`pisslink.abc.Playable`
             The track that is now playing.
         """
         if replace or not self.is_playing():
