@@ -4,13 +4,13 @@ with open('requirements.txt') as f:
     requirements = f.readlines()
 
 setup(
-    name='pisslink',
+    name='Pisslink.py',
     author='KaasToast',
     url='https://github.com/KaasToast/Pisslink.py',
-    version='1.1',
+    version='1.2',
     packages=['pisslink'],
     license='MIT',
-    description='Wavelink fork that works.',
+    description='An audio player for Discord with a builtin queue system, Spotify and playlist support.',
     include_package_data=True,
-    install_requires=requirements
+    install_requires=requirements,
 )
