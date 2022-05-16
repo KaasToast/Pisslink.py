@@ -119,7 +119,15 @@ class Player:
         if member == member.guild.me and before.channel != after.channel:
             self.channel = after.channel
             if not after.channel:
-                self.connected = False
+                await self.teardown()
+
+    async def teardown(self) -> None:
+        self.connected = False
+        self.client.loop.create_task(self.dispatch('player_destroy', self.guild))
+        if self._track_converter.is_running():
+            self._track_converter.stop()
+        if self._rotate_proxy.is_running():
+            self._rotate_proxy.stop()
 
     async def connect(self, channel: discord.VoiceChannel) -> None:
         '''
@@ -147,13 +155,8 @@ class Player:
         '''
         if not self.connected:
             raise NotConnected
-        self.connected = False
         await self.guild.voice_client.disconnect()
-        self.client.loop.create_task(self.dispatch('player_destroy', self.guild))
-        if self._track_converter.is_running():
-            self._track_converter.stop()
-        if self._rotate_proxy.is_running():
-            self._rotate_proxy.stop()
+        await self.teardown()
 
     async def move_to(self, channel: discord.VoiceChannel) -> None:
         '''
@@ -394,4 +397,5 @@ class Player:
         if self.cookies_path:
             ydl_opts['cookiefile'] = self.cookies_path
         self.ydl = YoutubeDL(ydl_opts)
+        self.proxy_position += 1
         await asyncio.sleep(self.proxy_rotation_interval)
