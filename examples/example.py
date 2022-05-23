@@ -39,7 +39,7 @@ class Music(commands.Cog):
             if not tracks: # check if a track was found
                 await ctx.respond('No tracks found.')
             else: # add the track to the queue and start playback
-                await player.queue.add(tracks)
+                player.queue.add(tracks)
                 await ctx.respond(f'Added {tracks.title} to the queue.')
                 if not player.playing:
                     await player.advance()
