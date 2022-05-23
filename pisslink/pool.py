@@ -60,12 +60,14 @@ class Pool:
             self._sessions[guild.id] = Player(self.client, self.spotify_client_id, self.spotify_client_secret, self.track_conversion_interval, self.cookies_path, self.proxies, self.proxy_rotation_interval)
         return self._sessions[guild.id]
 
-    async def _destroy_player(self, guild: discord.Guild) -> None:
+    async def _destroy_player(self, player: Player) -> None:
         '''
         Destroys the player associated with specified guild. This method is automatically called when the player gets disconnected.
 
         Args:
-            guild: The :class:`Guild` to destroy the player for.
+            player: The :class:`Player` to destroy.
         '''
-        if guild.id in self._sessions.keys():
-            del self._sessions[guild.id]
+        for gld, plyr in self._sessions.items():
+            if plyr == player:
+                del self._sessions[gld]
+                return

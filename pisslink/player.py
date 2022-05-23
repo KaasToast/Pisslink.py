@@ -60,7 +60,6 @@ class Player:
             ydl_opts['cookiefile'] = cookies_path
         self.ydl: YoutubeDL = YoutubeDL(ydl_opts)
         self.client = client
-        self.guild: Optional[discord.Guild] = None
         self.queue = Queue()
         self.spotify: Optional[Spotify] = self.spotify_check(spotify_client_id, spotify_client_secret)
         self.channel: Optional[discord.VoiceChannel] = None
@@ -80,6 +79,10 @@ class Player:
             self._track_converter.start()
         if not self._rotate_proxy.is_running() and proxies and len(proxies) > 0:
             self._rotate_proxy.start()
+
+    @property
+    def guild(self) -> Optional[discord.Guild]:
+        return getattr(self.channel, 'guild', None)
 
     def spotify_check(self, spotify_client_id: str, spotify_client_secret: str) -> Optional[Spotify]:
         '''
@@ -112,7 +115,8 @@ class Player:
         if event == 'track_end':
             self.stopevent = 'FINISHED'
             self.playing = False
-            await self.advance()
+            if self.connected:
+                await self.advance()
 
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
         '''Handles voice state updates.'''
@@ -123,7 +127,7 @@ class Player:
 
     async def teardown(self) -> None:
         self.connected = False
-        self.client.loop.create_task(self.dispatch('player_destroy', self.guild))
+        self.client.loop.create_task(self.dispatch('player_destroy', self))
         if self._track_converter.is_running():
             self._track_converter.stop()
         if self._rotate_proxy.is_running():
@@ -143,7 +147,6 @@ class Player:
             raise NoAccess
         self.connected = True
         self.channel = channel
-        self.guild = channel.guild
         await channel.connect()
 
     async def disconnect(self) -> None:
@@ -190,7 +193,9 @@ class Player:
             try:
                 track = await self.get_tracks(track.url) if track.url else await self.get_tracks(track.title)
             except:
-                return await self.advance()
+                if self.connected:
+                    await self.advance()
+                return
         self.current = track
         self.playing = True
         if isinstance(track, LocalTrack):
